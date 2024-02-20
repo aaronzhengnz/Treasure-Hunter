@@ -13,6 +13,8 @@ public class PlayerMove : MonoBehaviour
     public float jumpForce;
     public float jumpCooldown;
     public float airMultiplyer;
+    public float extraJumps;
+    float extraJumpCount;
     bool readyToJump;
         
     [Header("KeyBinds")]
@@ -51,7 +53,10 @@ public class PlayerMove : MonoBehaviour
 
         // handle drag
         if (grounded)
+        {
+            extraJumpCount = 0;
             rb.drag = groundDrag;
+        }
         else
             rb.drag = 1;
     }
@@ -67,13 +72,17 @@ public class PlayerMove : MonoBehaviour
         verticalInput = Input.GetAxisRaw("Vertical");
 
         // when to jump
-        if(Input.GetKey(jumpKey) && readyToJump && grounded)
+        if(Input.GetKey(jumpKey) && readyToJump && grounded || Input.GetKey(jumpKey) && readyToJump && grounded == false && extraJumpCount < extraJumps)
         {
+            if(grounded == false) {
+                extraJumpCount++;
+            }
             readyToJump = false;
 
             Jump();
 
             Invoke(nameof(ResetJump), jumpCooldown);
+
         }
     }
 
