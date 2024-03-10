@@ -1,96 +1,90 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
-
 
 public class PlayerMovement : MonoBehaviour
 {
-    [SerializeField] Transform playerCamera;
-    [SerializeField][Range(0.0f, 0.5f)] float mouseSmoothTime = 0.03f;
-    [SerializeField] bool cursorLock = true;
-    [SerializeField] float mouseSensitivity = 3.5f;
-    [SerializeField] float movementSpeed = 6.0f;
-    [SerializeField][Range(0.0f, 0.5f)] float moveSmoothTime = 0.3f;
-    [SerializeField] float gravity = -30f;
-    [SerializeField] Transform groundCheck;
-    [SerializeField] LayerMask ground;
-    [SerializeField] float extraJumps = 1;
-    [SerializeField] float currentJumps = 0;
+    [Header("Components")]
+    public CharacterController characterController;
 
-    public float jumpHeight = 6f;
-    float velocityY;
+    [Header("Movement")]
+    public float speed = 12f;
+    public float gravity = -19.62f;
+
+    [Header("Ground Check")]
+    public Transform groundCheck;
+    public float groundDistance = 0.4f;
+    public LayerMask groundLayerMask;
     bool isGrounded;
 
-    float cameraCap;
-    Vector2 currentMouseDelta;
-    Vector2 currentMouseDeltaVelocity;
+    [Header("Jump")]
+    public float jumpHeight = 3f;
+    public float airControl = 0.3f;
 
-    CharacterController controller;
-    Vector2 currentDir;
-    Vector2 currentDirVelocity;
     Vector3 velocity;
 
-    void Start()
+    private void Start()
     {
-        controller = GetComponent<CharacterController>();
+        isGrounded = false;
+    }
 
-        if (cursorLock)
+    private void Update()
+    {
+        IsGrounded();
+        Move();
+        Jump();
+        ApplyGravity();
+    }
+
+    private void IsGrounded()
+    {
+        isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundLayerMask);
+
+        if (isGrounded && velocity.y < 0)
         {
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = true;
+            velocity.y = -2f;
         }
     }
 
-    void Update()
+    private void Move()
     {
-        UpdateMouse();
-        UpdateMove();
-    }
+        float moveX = Input.GetAxis("Horizontal");
+        float moveZ = Input.GetAxis("Vertical");
 
-    void UpdateMouse()
-    {
-        Vector2 targetMouseDelta = new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y"));
+        Mathf.Clamp(moveX, -0.5f, 0.5f);
+        Mathf.Clamp(moveZ, -0.5f, 0.5f);
 
-        currentMouseDelta = Vector2.SmoothDamp(currentMouseDelta, targetMouseDelta, ref currentMouseDeltaVelocity, mouseSmoothTime);
+        Vector3 move = transform.right * moveX + transform.forward * moveZ;
 
-        cameraCap -= currentMouseDelta.y * mouseSensitivity;
-
-        cameraCap = Mathf.Clamp(cameraCap, -90.0f, 90.0f);
-
-        playerCamera.localEulerAngles = Vector3.right * cameraCap;
-
-        transform.Rotate(Vector3.up * currentMouseDelta.x * mouseSensitivity);
-    }
-
-    void UpdateMove()
-    {
-        isGrounded = Physics.CheckSphere(groundCheck.position, 0.2f, ground);
-
-        if (isGrounded)
+        if (move.magnitude >= 0.3)
         {
-            currentJumps = 0;
+            move = move.normalized;
         }
 
-        Vector2 targetDir = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
-        targetDir.Normalize();
+        characterController.Move(move * speed * Time.deltaTime);
 
-        currentDir = Vector2.SmoothDamp(currentDir, targetDir, ref currentDirVelocity, moveSmoothTime);
-
-        velocityY += gravity * 2f * Time.deltaTime;
-
-        velocity = (transform.forward * currentDir.y + transform.right * currentDir.x) * movementSpeed + Vector3.up * velocityY;
-
-        controller.Move(velocity * Time.deltaTime);
-
-        if (isGrounded && Input.GetButtonDown("Jump") || Input.GetButtonDown("Jump") && currentJumps < extraJumps)
+        if (velocity.y >= 0f)
         {
-            velocityY = Mathf.Sqrt(jumpHeight * -2f * gravity);
-            currentJumps++;
+            move.x *= airControl;
+            move.z *= airControl;
         }
+    }
 
-        if (isGrounded! && controller.velocity.y < -1f)
+    private void ApplyGravity()
+    {
+        velocity.y += gravity * Time.deltaTime;
+        velocity.x *= airControl;
+        velocity.z *= airControl;
+        characterController.Move(velocity * Time.deltaTime);
+    }
+
+    private void Jump()
+    {
+        if (isGrounded && Input.GetButtonDown("Jump"))
         {
-            velocityY = -6f;
+            Debug.Log("Jumping");
+            velocity.y += Mathf.Sqrt(jumpHeight * -2 * gravity);
         }
     }
 }
