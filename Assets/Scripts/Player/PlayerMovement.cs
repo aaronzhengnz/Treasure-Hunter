@@ -11,6 +11,8 @@ public class PlayerMovement : MonoBehaviour
     [Header("Movement")]
     public float speed = 12f;
     public float gravity = -19.62f;
+    public float totalJumps = 2f;
+    public float jumps;
 
     [Header("Ground Check")]
     public Transform groundCheck;
@@ -43,6 +45,7 @@ public class PlayerMovement : MonoBehaviour
 
         if (isGrounded && velocity.y < 0)
         {
+            jumps = totalJumps;
             velocity.y = -2f;
         }
     }
@@ -81,9 +84,9 @@ public class PlayerMovement : MonoBehaviour
 
     private void Jump()
     {
-        if (isGrounded && Input.GetButtonDown("Jump"))
+        if (isGrounded && Input.GetButtonDown("Jump") || Input.GetButtonDown("Jump") && jumps > 0)
         {
-            Debug.Log("Jumping");
+            jumps -= 1;
             velocity.y += Mathf.Sqrt(jumpHeight * -2 * gravity);
         }
     }
