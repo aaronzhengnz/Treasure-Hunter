@@ -21,7 +21,7 @@ public class PlayerMovement : MonoBehaviour
     bool isGrounded;
 
     [Header("Jump")]
-    public float jumpHeight = 3f;
+    public float jumpHeight = 4f;   
     public float airControl = 0.3f;
 
     Vector3 velocity;
@@ -86,6 +86,7 @@ public class PlayerMovement : MonoBehaviour
     {
         if (isGrounded && Input.GetButtonDown("Jump") || Input.GetButtonDown("Jump") && jumps > 0)
         {
+            velocity.y = 0f;
             jumps -= 1;
             velocity.y += Mathf.Sqrt(jumpHeight * -2 * gravity);
         }
