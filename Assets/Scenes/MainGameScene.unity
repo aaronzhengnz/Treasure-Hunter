@@ -5112,10 +5112,9 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6298239347164573323, guid: a4e34a86eb69d034aa2fe30ec63d10d5, type: 3}
       propertyPath: m_Convex
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents:
-    - {fileID: 6298239347164573323, guid: a4e34a86eb69d034aa2fe30ec63d10d5, type: 3}
+    m_RemovedComponents: []
     m_RemovedGameObjects:
     - {fileID: 2136525000640390942, guid: a4e34a86eb69d034aa2fe30ec63d10d5, type: 3}
     m_AddedGameObjects:
@@ -5601,9 +5600,9 @@ Rigidbody:
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
   m_UseGravity: 1
-  m_IsKinematic: 1
+  m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 126
+  m_Constraints: 112
   m_CollisionDetection: 1
 --- !u!114 &1045485894
 MonoBehaviour:
@@ -8644,7 +8643,8 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 8326951102184565895, guid: 117d1a029960d594f96bae9acdb46e33, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
